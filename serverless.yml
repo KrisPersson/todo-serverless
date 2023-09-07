@@ -1,0 +1,57 @@
+service: todo-serverless
+frameworkVersion: '3'
+
+provider:
+  name: aws
+  runtime: nodejs18.x
+  profile: krisperssonRegularUser
+  region: eu-north-1
+  deploymentMethod: direct
+  iam:
+      role: arn:aws:iam::619468094687:role/LambdaAPIGatewayDynamoDB
+
+plugins:
+  - serverless-webpack
+
+package:
+  individually: true
+
+functions:
+  getTodos:
+    handler: functions/getTodos/index.handler
+    events:
+    - httpApi:
+        path: '/api/todos'
+        method: GET
+  postTodo:
+    handler: functions/postTodo/index.handler
+    events:
+    - httpApi:
+        path: '/api/todos'
+        method: POST
+  updateTodo:
+    handler: functions/updateTodo/index.handler
+    events:
+    - httpApi:
+        path: '/api/todos'
+        method: PUT
+  deleteTodo:
+    handler: functions/deleteTodo/index.handler
+    events:
+    - httpApi:
+        path: '/api/todos'
+        method: DELETE
+
+resources:
+    Resources: 
+        todosDb:
+            Type: AWS::DynamoDB::Table
+            Properties: 
+                TableName: todos-db
+                AttributeDefinitions:
+                    - AttributeName: id
+                      AttributeType: S
+                KeySchema:
+                    - AttributeName: id
+                      KeyType: HASH
+                BillingMode: PAY_PER_REQUEST
